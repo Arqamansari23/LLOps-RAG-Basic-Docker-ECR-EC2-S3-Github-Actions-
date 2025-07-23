@@ -1,0 +1,46 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Environment
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+
+# OS/system files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Git
+.git
+.gitignore
+
+# Docker files
+Dockerfile.dev
+docker-compose*.yml
+
+# VSCode / IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Dependencies
+node_modules/
+
+
