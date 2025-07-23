@@ -1,107 +1,199 @@
-# How to run?
 
-### STEPS:
+---
+
+# 🔥 LLOps RAG Basic Project with Docker, ECR, EC2, S3 & GitHub Actions
+
+This project demonstrates an end-to-end **RAG (Retrieval-Augmented Generation)** pipeline deployed using **Docker, AWS ECR, EC2, S3**, and automated using **GitHub Actions** for CI/CD. It includes complete environment management, vectorstore, basic query answering, and cloud deployment using best DevOps practices.
+
+---
 
 
-### STEP 01- Create a uv environment after opening the repository
+
+## 🚀 Features
+
+- Upload PDFs and perform question answering
+- Uses **FAISS** for fast vector similarity search
+- Embeds with OpenAI/Gemini/any LLM provider
+- Stores PDFs and models in **AWS S3**
+- Fully Dockerized for reproducible builds
+- CI/CD enabled with **GitHub Actions** and **ECR + EC2**
+- Clean modular structure (LLM services, vector DB, storage services)
+
+## 📁 Folder Structure
+
+
+```bash
+requirements.txt
+app/
+├── __init__.py
+├── config.py                  # Loads .env variables (API keys, AWS, etc.)
+├── main.py                    # Flask app entrypoint
+│
+├── models/                    # Vector store handling (FAISS/Chroma)
+│   ├── __init__.py
+│   └── vector_store.py        # Embedding + Retrieval logic
+│
+├── services/
+│   ├── __init__.py
+│   ├── llm_service.py         # Call to OpenAI/Gemini LLM
+│   └── storage_service.py     # Handles AWS S3 upload/download
+│
+├── static/
+│   └── style.css              # UI styling
+│
+└── templates/
+    └── index.html             # Web interface (PDF upload + Q&A)
+
+
+
+```
+
+## 🛠️ How to Run Locally?
+
+### Step 1: Setup Environment Using `uv` (Optional)
 
 ```bash
 uv init 
 uv venv 
 ```
 
+Activate the environment:
+
 ```bash
-.venv\Scripts\activate
+.venv\Scripts\activate  # On Windows
+source .venv/bin/activate  # On Linux/macOS
 ```
 
+### Step 2: Install Dependencies
 
-### STEP 02- install the requirements
 ```bash
-uv add -r requriements.txt
+uv pip install -r requirements.txt
 ```
 
+### Step 3: Run the App
 
 ```bash
-# Finally run the following command
 python app/main.py
 ```
 
-Now,
+Visit the app at:
+
 ```bash
-open up you local host and port
+http://localhost:8000
 ```
 
+---
 
+## 🐳 Docker & AWS Deployment
 
-# AWS-CICD-Deployment-with-Github-Actions
+### 1. 🔑 Create IAM User in AWS Console
 
-## 1. Login to AWS console.
+Assign the following **policies** to the IAM user:
 
-## 2. Create IAM user for deployment
+* `AmazonEC2FullAccess`
+* `AmazonEC2ContainerRegistryFullAccess`
 
-	#with specific access
+This user will be used to push Docker images to AWS ECR and deploy them on EC2.
 
-	1. EC2 access : It is virtual machine
+---
 
-	2. ECR: Elastic Container registry to save your docker image in aws
+### 2. 🐋 Create AWS ECR Repository
 
+Create a new ECR repository to host the Docker image.
 
-	#Description: About the deployment
+Example URI:
 
-	1. Build docker image of the source code
+```
+315865595366.dkr.ecr.us-east-1.amazonaws.com/rag
+```
 
-	2. Push your docker image to ECR
+---
 
-	3. Launch Your EC2 
+### 3. 💻 Launch EC2 (Ubuntu) & Install Docker
 
-	4. Pull Your image from ECR in EC2
+SSH into your EC2 instance, then install Docker:
 
-	5. Lauch your docker image in EC2
+```bash
+sudo apt-get update -y
+sudo apt-get upgrade -y
 
-	#Policy:
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
 
-	1. AmazonEC2ContainerRegistryFullAccess
+# Grant Docker access
+sudo usermod -aG docker ubuntu
+newgrp docker
+```
 
-	2. AmazonEC2FullAccess
+---
 
-	
-## 3. Create ECR repo to store/save docker image
-    - Save the URI: 315865595366.dkr.ecr.us-east-1.amazonaws.com/rag
+### 4. 🏃 Setup EC2 as Self-Hosted GitHub Runner
 
-	
-## 4. Create EC2 machine (Ubuntu) 
+Go to:
 
-## 5. Open EC2 and Install docker in EC2 Machine:
-	
-	
-	#optinal
+```
+GitHub Repo > Settings > Actions > Runners > New self-hosted runner
+```
 
-	sudo apt-get update -y
+* Choose OS: Linux
+* Follow and run the commands given by GitHub on your EC2 instance.
 
-	sudo apt-get upgrade
-	
-	#required
+---
 
-	curl -fsSL https://get.docker.com -o get-docker.sh
+### 5. 🔐 Setup GitHub Secrets
 
-	sudo sh get-docker.sh
+Add the following secrets to your repository:
 
-	sudo usermod -aG docker ubuntu
+| Secret Name             | Description                                         |
+| ----------------------- | --------------------------------------------------- |
+| `AWS_ACCESS_KEY_ID`     | IAM user access key                                 |
+| `AWS_SECRET_ACCESS_KEY` | IAM user secret key                                 |
+| `AWS_REGION`            | e.g. `us-east-1`                                    |
+| `AWS_ECR_LOGIN_URI`     | e.g. `315865595366.dkr.ecr.us-east-1.amazonaws.com` |
+| `ECR_REPOSITORY_NAME`   | e.g. `rag`                                          |
 
-	newgrp docker
-	
-# 6. Configure EC2 as self-hosted runner:
-    setting>actions>runner>new self hosted runner> choose os> then run command one by one
+---
 
+## 🚀 GitHub Actions Deployment Flow
 
-# 7. Setup github secrets:
+The `.github/workflows/deploy.yml` does the following automatically when you push to main:
 
-    AWS_ACCESS_KEY_ID=
+1. **Builds Docker Image** from the source code.
+2. **Pushes Docker Image** to AWS ECR.
+3. **Triggers Self-Hosted EC2 Runner**.
+4. **Pulls Docker Image** from ECR in EC2.
+5. **Runs the App in EC2** using Docker.
 
-    AWS_SECRET_ACCESS_KEY=
+---
 
-    AWS_REGION = us-east-1
+## 📦 .gitignore
 
-    AWS_ECR_LOGIN_URI = demo>>  566373416292.dkr.ecr.ap-south-1.amazonaws.com
+```gitignore
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
 
-    ECR_REPOSITORY_NAME = simple-app
+# Virtual environments
+.venv/
+
+# Environment variable files
+.env
+.env.*
+```
+
+---
+
+## ✨ Tech Stack
+
+* **FastAPI** for backend
+* **Docker** for containerization
+* **AWS EC2 + ECR** for cloud deployment
+* **GitHub Actions** for CI/CD
+* **LangChain + FAISS** for RAG implementation
+
+---
