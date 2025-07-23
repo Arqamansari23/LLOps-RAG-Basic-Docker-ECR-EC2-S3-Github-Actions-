@@ -149,9 +149,9 @@ Add the following secrets to your repository:
 | ----------------------- | --------------------------------------------------- |
 | `AWS_ACCESS_KEY_ID`     | IAM user access key                                 |
 | `AWS_SECRET_ACCESS_KEY` | IAM user secret key                                 |
-| `AWS_REGION`            | e.g. `us-east-1`                                    |
-| `AWS_ECR_LOGIN_URI`     | e.g. `315865595366.dkr.ecr.us-east-1.amazonaws.com` |
-| `ECR_REPOSITORY_NAME`   | e.g. `rag`                                          |
+| `AWS_DEFAULT_REGION`            | e.g. `us-east-1`                                    |
+| `ECR_REPO`     | e.g. `315865595366.dkr.ecr.us-east-1.amazonaws.com` |
+| `ECR_REPO`   | e.g. `rag`                                          |
 
 ---
 
